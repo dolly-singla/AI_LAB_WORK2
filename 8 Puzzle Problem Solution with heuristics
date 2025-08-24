@@ -1,0 +1,55 @@
+import heapq
+
+
+def misplaced_tiles(state, goal):
+    return sum(1 for i in range(9) if state[i] != 0 and state[i] != goal[i])
+
+
+def get_moves(state):
+    child = []
+    idx = state.index(0) 
+    x, y = divmod(idx, 3)
+    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]  
+
+    for dx, dy in moves:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < 3 and 0 <= ny < 3:
+            new_idx = nx * 3 + ny
+            new_state = list(state)
+            new_state[idx], new_state[new_idx] = new_state[new_idx], new_state[idx]
+            child.append(tuple(new_state))
+    return child
+
+def solve_8_puzzle(start, goal):
+    heap = [(misplaced_tiles(start, goal), 0, start)] 
+    visited = set()
+
+    while heap:
+        priority, cost, state = heapq.heappop(heap)
+
+        if state in visited:
+            continue
+        visited.add(state)
+
+        
+        if state == goal:
+            print("Problem Solved")
+            return
+
+        for child in get_moves(state):
+            if child not in visited:
+                h = misplaced_tiles(child, goal)
+                heapq.heappush(heap, (cost + h, cost + 1, child))
+
+    print("No solution found.")
+
+
+start_state = (1, 2, 3,
+               4, 0, 5,
+               6, 7, 8)
+
+goal_state = (1, 2, 3,
+              4, 5, 6,
+              7, 8, 0)
+
+solve_8_puzzle(start_state, goal_state)
