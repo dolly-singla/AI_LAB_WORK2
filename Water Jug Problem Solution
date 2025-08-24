@@ -1,0 +1,52 @@
+import heapq
+from math import gcd
+
+def water_jug(jug1, jug2, target):
+    
+    if target > max(jug1, jug2):
+        print(f"Failure: Target {target} is greater than both jug capacities ({jug1}, {jug2}).")
+        return
+    
+    
+    if target % gcd(jug1, jug2) != 0:
+        print(f"Failure: Target {target} cannot be measured because it's not a multiple of gcd({jug1}, {jug2}) = {gcd(jug1, jug2)}.")
+        return
+    
+    # Priority queue: (cost, x, y)
+    heap = [(0, 0, 0)]  
+    visited = set()
+
+    while heap:
+        steps, x, y = heapq.heappop(heap)
+
+        if (x, y) in visited:
+            continue
+        visited.add((x, y))
+
+        
+        if x == target or y == target:
+            print(f"Reached target: ({x}, {y}) in {steps} steps.")
+            return
+
+        
+        next_states = [
+            (jug1, y),   
+            (x, jug2),   
+            (0, y),      
+            (x, 0),      
+            (max(0, x - (jug2 - y)), min(jug2, y + x)), 
+            (min(jug1, x + y), max(0, y - (jug1 - x)))  
+        ]
+
+        for nx, ny in next_states:
+            if (nx, ny) not in visited:
+                
+                h = min(abs(nx - target), abs(ny - target))
+                heapq.heappush(heap, (steps + 1 + h, nx, ny))
+
+    print("Failure: No solution found using the given jug sizes.")
+
+
+water_jug(4, 3, 2)  
+water_jug(4, 3, 5)   
+water_jug(6, 4, 5)   
