@@ -1,0 +1,66 @@
+import random
+
+
+def misplaced_tiles(state, goal):
+    return sum(1 for i in range(9) if state[i] != 0 and state[i] != goal[i])
+
+
+def get_moves(state):
+    child = []
+    idx = state.index(0) 
+    x, y = divmod(idx, 3)
+    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)] 
+
+    for dx, dy in moves:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < 3 and 0 <= ny < 3:
+            new_idx = nx * 3 + ny
+            new_state = list(state)
+            new_state[idx], new_state[new_idx] = new_state[new_idx], new_state[idx]
+            child.append(tuple(new_state))
+    return child
+
+
+def hill_climb(start, goal):
+    current = start
+    current_h = misplaced_tiles(current, goal)
+
+    steps = 0
+    print(f"Start State: {current}, h={current_h}")
+
+    while True:
+        neighbors = get_moves(current)
+
+        
+        better_neighbors = []
+        for n in neighbors:
+            h = misplaced_tiles(n, goal)
+            if h < current_h:
+                better_neighbors.append((h, n))
+
+        if not better_neighbors:
+            print("\nNo better neighbor found. Stuck at local optimum.")
+            break
+
+       
+        best_h, best_state = min(better_neighbors, key=lambda x: x[0])
+        current = best_state
+        current_h = best_h
+        steps += 1
+
+        print(f"Step {steps}: {current}, h={current_h}")
+
+        if current == goal:
+            print("\nGoal reached!")
+            break
+
+
+start_state = (8, 7, 3,
+               4, 0, 5,
+               6, 2, 1)
+
+goal_state = (1, 2, 3,
+              4, 5, 6,
+              7, 8, 0)
+
+hill_climb(start_state, goal_state)
