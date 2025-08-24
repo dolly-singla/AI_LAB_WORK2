@@ -1,0 +1,60 @@
+import random
+
+n = 3
+magic_sum = n * (n**2 + 1) // 2
+print(f"Magic Sum is {magic_sum} ")
+
+
+def score(square):
+    s = 0
+    # Rows
+    for i in range(n):
+        if sum(square[i]) == magic_sum:
+            s += 1
+    # Columns
+    for j in range(n):
+        if sum(square[i][j] for i in range(n)) == magic_sum:
+            s += 1
+    # Diagonals
+    if sum(square[i][i] for i in range(n)) == magic_sum:
+        s += 1
+    if sum(square[i][n-1-i] for i in range(n)) == magic_sum:
+        s += 1
+    return s
+
+
+def random_square():
+    nums = list(range(1, n**2 + 1))
+    random.shuffle(nums)
+    return [nums[i*n:(i+1)*n] for i in range(n)]
+
+
+def hill_climb():
+    current = random_square()
+    best_score = score(current)
+    steps = 0
+
+    while best_score < (2*n + 2):  
+        found_better = False
+        for i1 in range(n):
+            for j1 in range(n):
+                for i2 in range(n):
+                    for j2 in range(n):
+                        if (i1, j1) != (i2, j2):
+                            neighbor = [row[:] for row in current]
+                            neighbor[i1][j1], neighbor[i2][j2] = neighbor[i2][j2], neighbor[i1][j1]
+                            sc = score(neighbor)
+                            if sc > best_score:
+                                current = neighbor
+                                best_score = sc
+                                found_better = True
+        steps += 1
+        if not found_better:  
+            current = random_square()
+            best_score = score(current)
+    return current, steps
+
+solution, steps = hill_climb()
+print(f"Solved in {steps} steps:")
+for row in solution:
+    print(row)
